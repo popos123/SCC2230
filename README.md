@@ -1,0 +1,1 @@
+This is the Arduino library for the SCC2230
