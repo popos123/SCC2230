@@ -15,8 +15,6 @@ void setup() {
 
 void loop() {
   SCC2230.ReadData(REQ_SEND); // read data
-  char Print[100];
-  sprintf(Print, "%f %f %f %f %f", SCC2230.RATE, SCC2230.ACC_X, SCC2230.ACC_Y, SCC2230.ACC_Z, SCC2230.TEMP);
-  Serial.println(Print);
-  delay(40); // about 25 fps
+  Serial.println(SCC2230.RATE + String(" ") + SCC2230.ACC_X + String(" ") + SCC2230.ACC_Y + String(" ") + SCC2230.ACC_Z + String(" ") + SCC2230.TEMP);
+  delay(100);
 }

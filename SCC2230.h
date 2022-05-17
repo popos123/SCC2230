@@ -59,7 +59,8 @@ class Magnet {
       #if defined(__AVR__) || defined(ARDUINO_TEENSY40) // also Teensy 3.X nad 4.1
       this->hspi->begin(); // just for Arduino Leonardo
       #else
-      this->hspi->begin(this->pin_SS1); // for e.g. STM32 series
+      this->hspi->begin(pin_SLCK); // for old ESP32 Dev Board (retired)
+      //this->hspi->begin(_pin_SS1); // for another board
       #endif
       #endif
     }
@@ -75,7 +76,7 @@ class Magnet {
           this->secondHalf_request = (uint32_t)(arr[i] & 0xffff);
         }
         else this->firstHalf_request = 0, this->secondHalf_request = 0;
-        digitalWrite( this->pin_SS1, LOW); // Select
+        digitalWrite(this->pin_SS1, LOW); // Select
         #ifdef Software
         this->firstHalf_read = mySPI->transfer16(firstHalf_request);
         #else
@@ -86,17 +87,17 @@ class Magnet {
         #else
         this->secondHalf_read = hspi->transfer16(secondHalf_request);
         #endif
-        digitalWrite( this->pin_SS1, HIGH); // Deselect
+        digitalWrite(this->pin_SS1, HIGH); // Deselect
         // convert to int32_t and inverse bit (sensor sends inverse logic)
         int32_t Reads = ((~firstHalf_read << 16) | (~secondHalf_read & 0xffff));
         // split to the 4 times bytes parts 
         int8_t lit_int[4];
-        lit_int[0] = (int8_t)(Reads >>  0); // CRC ?????????????
+        lit_int[0] = (int8_t)(Reads >>  0); // CRC
         lit_int[1] = (int8_t)(Reads >>  8);
         lit_int[2] = (int8_t)(Reads >> 16);
-        lit_int[3] = (int8_t)(Reads >> 24); // ID ??????????????
+        lit_int[3] = (int8_t)(Reads >> 24); // ID
         Reads = ((lit_int[2] << 8) | (lit_int[1] & 0xff)); // get readings
-        Reads = static_cast<int32_t>(Reads); // fix the sign problem // Reads = ?????????
+        Reads = static_cast<int32_t>(Reads); // fix the sign problem
         if (arr[i-1] == READ_RATE) RATE = ((float)Reads/50.0)/5.0;
         if (arr[i-1] == READ_ACC_X) ACC_X = (float)Reads/5886.0;
         if (arr[i-1] == READ_ACC_Y) ACC_Y = (float)Reads/5886.0;
